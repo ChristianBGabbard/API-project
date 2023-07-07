@@ -9,6 +9,14 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+// Log out
+router.delete(
+'/',
+(_req, res) => {
+res.clearCookie('token');
+return res.json({ message: 'success' });
+}
+);
 // Log in
 router.post(
     '/',
@@ -23,6 +31,7 @@ router.post(
           }
         }
       });
+
 
       if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
         const err = new Error('Login failed');
