@@ -1,6 +1,6 @@
 "use strict";
-const { Model, DataTypes } = require("sequelize");
-const { sequelize } = require("../../db/models");
+const { Model, Validator } = require("sequelize");
+
 
 class User extends Model {
   static associate(models) {
@@ -19,11 +19,17 @@ User.init(
       allowNull: true,
     },
     username: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
         len: [4, 30],
-      },
+        isNotEmail(value) {
+          if (Validator.isEmail(value)) {
+            throw new Error("Cannot be an email.");
+          }
+        }
+      }
     },
     email: {
       type: DataTypes.STRING(256),
