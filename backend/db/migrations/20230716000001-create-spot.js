@@ -1,11 +1,11 @@
 'use strict';
+/** @type {import('sequelize-cli').Migration} */
 
 let options = {};
-if(process.env.NODE_ENV === 'production'){
-  options.schema = process.env.SCHEMA;
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
 }
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Spots', {
@@ -18,38 +18,39 @@ module.exports = {
       ownerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {model: 'Users'}
+        references: {
+          model: 'Users'
+        },
+        onDelete: 'CASCADE'
       },
       address: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(256),
         allowNull: false
       },
       city: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(30),
         allowNull: false
       },
       state: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(30),
         allowNull: false
       },
       country: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(30),
         allowNull: false
       },
       lat: {
-        type: Sequelize.DECIMAL,
-        allowNull: false
+        type: Sequelize.DECIMAL
       },
       lng: {
-        type: Sequelize.DECIMAL,
-        allowNull: false
+        type: Sequelize.DECIMAL
       },
       name: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(256),
         allowNull: false
       },
       description: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING(256),
         allowNull: false
       },
       price: {
@@ -69,7 +70,7 @@ module.exports = {
     }, options);
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = 'Spots'
+    options.tableName = "Spots";
     await queryInterface.dropTable(options);
   }
 };

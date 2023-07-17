@@ -1,6 +1,9 @@
 'use strict';
 
-const { User } = require('../models');
+/** @type {import('sequelize-cli').Migration} */
+
+
+const { User, Spot, Review, Booking, ReviewImage, SpotImage } = require('../models');
 const bcrypt = require("bcryptjs");
 
 let options = {};
@@ -12,35 +15,34 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await User.bulkCreate([
       {
+        firstName: 'Demo',
+        lastName: 'User',
         email: 'demo@user.io',
         username: 'Demo-lition',
-        hashedPassword: bcrypt.hashSync('password'),
-        firstName: 'Christian',
-        lastName: 'Gabbard'
+        hashedPassword: bcrypt.hashSync('password')
       },
       {
+        firstName: 'Fake',
+        lastName: 'User',
         email: 'user1@user.io',
         username: 'FakeUser1',
-        hashedPassword: bcrypt.hashSync('password2'),
-        firstName: 'Hank',
-        lastName: 'Pym'
+        hashedPassword: bcrypt.hashSync('password2')
       },
       {
+        firstName: 'User',
+        lastName: 'User',
         email: 'user2@user.io',
         username: 'FakeUser2',
-        hashedPassword: bcrypt.hashSync('password3'),
-        firstName: 'Nathan',
-        lastName: 'Florence'
+        hashedPassword: bcrypt.hashSync('password3')
       }
-
     ], { validate: true });
   },
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Users';
     const Op = Sequelize.Op;
-    return queryInterface.bulkDelete(options, {
-      username: { [Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2', 'admin-user'] }
+    await queryInterface.bulkDelete(options, {
+      username: { [Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] }
     }, {});
   }
 };

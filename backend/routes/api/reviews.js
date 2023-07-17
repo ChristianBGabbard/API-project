@@ -1,174 +1,162 @@
-const express = require('express')
-const { check } = require('express-validator');
-const{requireAuth} = require('../../utils/auth')
+const express = require("express");
+const { Op } = require("sequelize");
+const bcrypt = require("bcryptjs");
 
-const { handleValidationErrors } = require('../../utils/validation');
+const { setTokenCookie, requireAuth } = require("../../utils/auth");
+const { User, Spot, Review, Booking, ReviewImage, SpotImage } = require("../../db/models");
 
-const { User, Spot, SpotImage, Review, ReviewImage, sequelize } = require('../../db/models');
+const { check } = require("express-validator");
+const { handleValidationErrors } = require("../../utils/validation");
 
 const router = express.Router();
 
+router.get("/current", requireAuth, async (req, res, next) => {
 
-router.post('/:reviewId/images', requireAuth, async (req, res, next) => {
-        const currentUser = req.user.id;
-        const selectedReview = req.params.reviewId;
-        const review = await Review.findByPk(selectedReview, {
+      const curUserReviews = await Review.findAll({
+            where: {
+                  userId: req.user.id
+            },
             include: [
-                {
-                    model: User
-                },
-                {
-                    model: ReviewImage
-                },
-
+                  {model: User, attributes: ['id', 'firstName', 'lastName']},
+                  {
+                        model: Spot,
+                        attributes:['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price'],
+                        include: [{model: SpotImage}]
+                  },
+                  {model: ReviewImage}
             ]
-        });
-        if(!review){
-            res.status(404).json({
-                "message": "Review couldn't be found"
-            })
-        }
-        const reviewOwner = review.User.id;
-        if(currentUser !== reviewOwner){
-            res.status(403).json({
-                "message": "Current user is prohibited from accessing the selected data"
-            })
-        }
-        console.log('review:',review)
-        if (review.ReviewImages.length > 10){
-            res.status(403).json({
-                "message": "Maximum number of images for this resource was reached"
-            })
-        }
-        const {url} = req.body;
-        const newImage = await ReviewImage.create({reviewId: selectedReview, url})
-        return res.status(201).json(newImage)
-})
+      });
 
-router.get('/current', requireAuth, async (req, res, next) => {
+      const userReviewsArray = [];
 
-    const userId = req.user.id;
+      curUserReviews.forEach(reviews => {
+            userReviewsArray.push(reviews.toJSON());
+      });
 
-    const allReviews = await Review.findAll({
-        where: { userId: userId},
-        include: [
-            {
-                model: User,
-                attributes: ['id', 'firstName', 'lastName'],
-            },
-            {
-                model:Spot,
-                attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price' ]
-            },
-            {
-                model: ReviewImage,
-                as: 'ReviewImages'
+      userReviewsArray.forEach(review => {
+
+            if (review.Spot.SpotImages.length) {
+                  const {SpotImages} = review.Spot;
+
+                  SpotImages.forEach(image => {
+
+                        if (image.preview === true) {
+                              const {url} = image
+                              review.Spot.previewImage = url
+                        } else review.Spot.previewImage = "There are no preview images";
+
+                  });
+
+            } else review.Spot.previewImage = "There are no preview images";
+
+            delete review.Spot.SpotImages;
+
+            if (review.ReviewImages.length) {
+
+                  review.ReviewImages.forEach(img => {
+                        delete img.reviewId;
+                        delete img.createdAt;
+                        delete img.updatedAt;
+                  });
+            } else review.ReviewImages = "There are no current images";
+
+      });
+
+      if(curUserReviews.length) {
+            return res.json({"Reviews": userReviewsArray});
+      } else return res.json({message: "You don't have any current reviews"});
+
+});
+
+router.post("/:reviewId/images", requireAuth, async (req, res, next) => {
+
+      const { url } = req.body;
+
+      const curReview = await Review.findByPk(req.params.reviewId);
+
+      if (!curReview) {
+            res.status(404);
+            return res.json({"message": "Review couldn't be found"});
+      };
+
+      if (curReview.userId !== req.user.id) {
+            res.status(403);
+            return res.json({
+                  "message": "Forbidden"
+                })
+      };
+
+      const countReviewImages = await ReviewImage.count({
+            where: {
+                  reviewId: curReview.id
             }
-        ],
-    });
+      });
 
-    const reviewsWithDetails = await Promise.all(allReviews.map(async review => {
-        const user = review.User;
-        const spot = review.Spot;
-        let reviewImages = review.ReviewImages;
+      if (countReviewImages >= 10) {
+            res.status(403);
+            return res.json({"message": "Maximum number of images for this resource was reached"});
+      };
 
+            const newReviewImg = await ReviewImage.create({
+                  url,
+                  reviewId: curReview.id
+            });
 
-        const spotImage = await SpotImage.findOne({
-            where: {spotId: spot.id},
-            attributes: ['url'],
-            limit: 1
-        });
+            const { id } = newReviewImg;
 
-        reviewImages = reviewImages.map(image => {
-            return {
-                id: image.id,
-                url: image.url
-            }
-        });
-        return {
-            ...review.get(),
-            User: user,
-            Spot: {
-                ...spot.get(),
-                previewImage: spotImage ? spotImage.url : null
-            },
-            ReviewImages: reviewImages
-        }
-    }));
+            const finalReviewImg = {
+                  id,
+                  url
+            };
 
-    res.json({ Reviews: reviewsWithDetails})
-})
+            return res.json(finalReviewImg);
 
+});
 
-router.put('/:reviewId', requireAuth, async (req, res, next) => {
-    const currentUser = req.user.id;
-    const selectedReview = req.params.reviewId;
-    const reviewId = await Review.findByPk(selectedReview)
+router.put("/:reviewId", requireAuth, async (req, res, next) => {
 
+      const { review, stars } = req.body;
 
+      const curReview = await Review.findByPk(req.params.reviewId);
 
-    if(!reviewId){
-        res.status(404).json({
-            "message": "Review couldn't be found"
-        })
-    }
-    const reviewOwner = reviewId.userId;
-    if(reviewOwner !== currentUser){
-        res.status(403).json({
-            "message": "Current user is prohibited from accessing the selected data"
-        })
-    }
-    const { review, stars } = req.body;
-    let errors = {}
-    if(review !== undefined){
-        if(review.trim() === '') errors.review = 'Review text is required';
-        else reviewId.review = review;
-    }
-    if(stars !== undefined){
-        if(stars > 5 || stars < 1) errors.stars = 'Stars must be an integer from 1 to 5';
-        else reviewId.stars = stars
-    }
+      if(!curReview) {
+            res.status(404);
+            return res.json({"message": "Review couldn't be found"});
+      };
 
-    if(errors.length > 0) return res.status(400).json({errors})
-    if(Object.keys(errors).length > 0){
-        return res.status(400).json({
-            "message": "Bad Request",
-            "errors": errors
-        })
-    }
-    const editedReview = await reviewId.save()
-    return res.json(editedReview)
-})
+      if(curReview.userId !== req.user.id) {
+            res.status(403);
+            return res.json({
+                  "message": "Forbidden"
+                })
+      };
 
+            const updatedReview = await curReview.update({
+                  review,
+                  stars
+            });
 
-router.delete('/:reviewId', requireAuth, async (req, res, next) => {
-    const reviewId = req.params.reviewId
-    const review = await Review.findByPk(reviewId, {
-        include: [
-            {
-                model: User
-            }
-        ]
-    });
-    if(!review){
-        return res.status(404).json({
-            "message": "Spot couldn't be found"
-           })
-    }
-    const owner = review.User.id;
-    const currentUser = req.user.id;
-    if(owner !== currentUser){
-        res.status(403).json({
-            "message": "Current user is prohibited from accessing the selected data"
-        })
-    }
-    await review.destroy();
-    return res.json({
-        "message": "Successfully deleted"
-    })
-})
+            return res.json(updatedReview);
+});
 
+router.delete("/:reviewId", requireAuth, async (req, res, next) => {
 
+      const curReview = await Review.findByPk(req.params.reviewId);
 
+      if(!curReview) {
+            res.status(404);
+            return res.json({"message": "Review couldn't be found"});
+      };
 
-module.exports = router
+      if(curReview.userId !== req.user.id) {
+            res.status(403);
+            return res.json({
+                  "message": "Forbidden"
+                })
+      };
+
+            curReview.destroy();
+            return res.json({"message": "Successfully deleted"});
+});
+
+module.exports = router;
