@@ -166,7 +166,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
       if (curBooking.userId !== req.user.id) {
             res.status(403);
             return res.json({
-                  "message": "Forbidden"
+                  "message": "Not Allowed to Delete"
                 });
       };
 
