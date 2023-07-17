@@ -156,12 +156,12 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const curBooking = await Booking.findByPk(req.params.bookingId);
 
-      if (!curBooking) {
-            res.status(404);
-            return res.json({
-                  "message": "Booking couldn't be found"
-            });
-      };
+    //   if (!curBooking) {
+    //         res.status(404);
+    //         return res.json({
+    //               "message": "Booking couldn't be found"
+    //         });
+    //   };
 
       if (curBooking.userId !== req.user.id) {
             res.status(403);
