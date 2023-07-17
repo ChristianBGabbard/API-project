@@ -16,20 +16,20 @@ module.exports = {
       {
         spotId: 1,
         userId: 1,
-        review: "Had a wonderful experience!",
-        stars: 4
+        review: "Host was gracious and had good comunication. LA is just not my favorite place",
+        stars: 3
       },
       {
         spotId: 2,
         userId: 2,
-        review: "Absolutely loved it!",
+        review: "Wow! will most definitely be back!",
         stars: 5
       },
       {
         spotId: 3,
         userId: 3,
-        review: "Great place to stay!",
-        stars: 4
+        review: "Overall, was very pleased with the experiance.",
+        stars: 5
       }
     ], { validate: true });
   },

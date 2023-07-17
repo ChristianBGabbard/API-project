@@ -43,9 +43,7 @@ router.get("/current", requireAuth, async (req, res, next) => {
 
             delete booking.Spot.SpotImages;
 
-            // ==========================================================
-            // Formatting dates
-            // ==========================================================
+            //DATES
 
             const s = booking.startDate;
 
@@ -58,7 +56,7 @@ router.get("/current", requireAuth, async (req, res, next) => {
 
             const formatedStartDate = sYear + "-" + sMonth + "-" + sDay;
 
-            //===========================
+            //
 
             const e = booking.endDate;
 
@@ -71,7 +69,7 @@ router.get("/current", requireAuth, async (req, res, next) => {
 
             const formatedEndDate = eYear + "-" + eMonth + "-" + eDay;
 
-            //===========================
+            //
 
             const c = booking.createdAt;
 
@@ -84,7 +82,7 @@ router.get("/current", requireAuth, async (req, res, next) => {
 
             const formatedCreatedDate = cYear + "-" + cMonth + "-" + cDay + " " + cTime;
 
-            //===========================
+            //
 
             const u = booking.updatedAt;
 
@@ -97,8 +95,8 @@ router.get("/current", requireAuth, async (req, res, next) => {
 
             const formatedUpdatedDate = uYear + "-" + uMonth + "-" + uDay + " " + uTime;
 
-            // ==========================================================
-            // ==========================================================
+
+            //
 
             booking.startDate = formatedStartDate;
             booking.endDate = formatedEndDate;
@@ -142,7 +140,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
       if (startEndArray[2][0] === '0') {
             endDate = startEndArray[0] + "-" + startEndArray[1] + "-" + startEndArray[2][1];
       };
-      //=================================
+      //
 
       function datesBetween(startD, endD) {
             const currentD = new Date(startD.getTime());
@@ -199,9 +197,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
             });
       });
 
-      //=================================================
-      // Handling date conflicts
-      //=================================================
+      //Conflict handling
 
       const requestStart = new Date(startDate);
       const requestEnd = new Date(endDate);
@@ -256,9 +252,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const { id, spotId, userId, createdAt, updatedAt } = curBooking;
 
-      // ==========================================================
       // Formatting dates
-      // ==========================================================
 
       const s = new Date (startDate);
 
@@ -271,7 +265,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const formatedStartDate = sYear + "-" + sMonth + "-" + sDay;
 
-      //===========================
+      //
 
       const e = new Date (endDate);
 
@@ -284,7 +278,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const formatedEndDate = eYear + "-" + eMonth + "-" + eDay;
 
-      //===========================
+      //
 
       const c = new Date (createdAt);
 
@@ -297,7 +291,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const formatedCreatedDate = cYear + "-" + cMonth + "-" + cDay + " " + cTime;
 
-      //===========================
+      //
 
       const u = new Date (updatedAt);
 
@@ -310,8 +304,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const formatedUpdatedDate = uYear + "-" + uMonth + "-" + uDay + " " + uTime;
 
-      // ==========================================================
-      // ==========================================================
+      //
 
       const updatedBooking = {
             id,

@@ -208,9 +208,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                   bookingss.forEach(bookingsss => {
 
-                        // ==========================================================
                         // Formatting dates
-                        // ==========================================================
 
                         const s = bookingsss.startDate;
 
@@ -223,7 +221,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                         const formatedStartDate = sYear + "-" + sMonth + "-" + sDay;
 
-                        //===========================
+                        //
 
                         const e = bookingsss.endDate;
 
@@ -236,8 +234,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                         const formatedEndDate = eYear + "-" + eMonth + "-" + eDay;
 
-                        // ==========================================================
-                        // ==========================================================
+                        //
 
                         bookingsss.startDate = formatedStartDate;
                         bookingsss.endDate = formatedEndDate;
@@ -268,9 +265,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
             bookingInfo.forEach(bookingss => {
 
-                  // ==========================================================
                   // Formatting dates
-                  // ==========================================================
 
                   const s = bookingss.startDate;
 
@@ -283,7 +278,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                   const formatedStartDate = sYear + "-" + sMonth + "-" + sDay;
 
-                  //===========================
+                  //
 
                   const e = bookingss.endDate;
 
@@ -296,7 +291,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                   const formatedEndDate = eYear + "-" + eMonth + "-" + eDay;
 
-                  //===========================
+                  //
 
                   const c = bookingss.createdAt;
 
@@ -309,7 +304,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                   const formatedCreatedDate = cYear + "-" + cMonth + "-" + cDay + " " + cTime;
 
-                  //===========================
+                  //
 
                   const u = bookingss.updatedAt;
 
@@ -322,8 +317,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
                   const formatedUpdatedDate = uYear + "-" + uMonth + "-" + uDay + " " + uTime;
 
-                  // ==========================================================
-                  // ==========================================================
+                  //
 
                   const bookingObj = {
                         User: bookingss.User,
@@ -389,10 +383,7 @@ router.get("/:spotId", async (req, res, next) => {
 
       const { id, ownerId, address, city, state, country,lat, lng, name, description, price, createdAt, updatedAt, SpotImages, Owner, numReviews, avgStarRating } = parsedIdSpot;
 
-
-      // ==========================================================
-      // Formatting dates
-      // ==========================================================
+      // DATES
 
       const c = new Date (createdAt);
 
@@ -405,7 +396,7 @@ router.get("/:spotId", async (req, res, next) => {
 
       const formatedCreatedDate = cYear + "-" + cMonth + "-" + cDay + " " + cTime;
 
-      //===========================
+      //
 
       const u = new Date (updatedAt);
 
@@ -418,8 +409,7 @@ router.get("/:spotId", async (req, res, next) => {
 
       const formatedUpdatedDate = uYear + "-" + uMonth + "-" + uDay + " " + uTime;
 
-      // ==========================================================
-      // ==========================================================
+      //
 
       const finalIdSpot = {id, ownerId, address, city, state, country,lat, lng, name, description, price, createdAt: formatedCreatedDate, updatedAt: formatedUpdatedDate, numReviews, avgStarRating, SpotImages, Owner};
 
@@ -533,8 +523,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
       let { startDate, endDate } = req.body;
 
-      //=================================
-      // Dropping leading zero from date
+      //
 
       const startDateArray = startDate.split('-');
 
@@ -547,7 +536,6 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
       if (startEndArray[2][0] === '0') {
             endDate = startEndArray[0] + "-" + startEndArray[1] + "-" + startEndArray[2][1];
       };
-      //=================================
 
       const curSpot = await Spot.findByPk(req.params.spotId);
 
@@ -563,9 +551,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
             return res.json({"message": "Forbidden"});
       };
 
-      //=================================================
       // Find all dates that are booked for this spot
-      //=================================================
 
       const allBookings = await Booking.findAll({
             where: {
@@ -587,9 +573,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
             });
       });
 
-      //=================================================
-      // Handling date conflicts
-      //=================================================
+      //date conflict handling
 
       const requestStart = new Date(startDate);
       const requestEnd = new Date(endDate);
@@ -646,9 +630,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
       const { id, spotId, userId, createdAt, updatedAt } = newBooking;
 
-      // ==========================================================
-      // Formatting dates
-      // ==========================================================
+      //
 
       const s = new Date (startDate);
 
@@ -661,7 +643,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
       const formatedStartDate = sYear + "-" + sMonth + "-" + sDay;
 
-      //===========================
+      //
 
       const e = new Date (endDate);
 
@@ -674,7 +656,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
       const formatedEndDate = eYear + "-" + eMonth + "-" + eDay;
 
-      //===========================
+      //
 
       const c = new Date (createdAt);
 
@@ -687,7 +669,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
       const formatedCreatedDate = cYear + "-" + cMonth + "-" + cDay + " " + cTime;
 
-      //===========================
+      //
 
       const u = new Date (updatedAt);
 
@@ -700,8 +682,7 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
       const formatedUpdatedDate = uYear + "-" + uMonth + "-" + uDay + " " + uTime;
 
-      // ==========================================================
-      // ==========================================================
+      //
 
       const confirmedBooking = {
             id,
