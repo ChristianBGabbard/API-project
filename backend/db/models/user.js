@@ -6,11 +6,46 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // define association here
+      User.belongsToMany(models.Spot, {
+        through: models.Booking,
+        foreignKey: 'userId',
+        otherKey: 'spotId',
+        // onDelete: 'CASCADE',
+        // hooks: true
+      }),
+      User.belongsToMany(models.Spot, {
+        through: models.Review,
+        foreignKey: 'userId',
+        otherKey: 'spotId',
+        // onDelete: 'CASCADE',
+        // hooks: true
+      }),
+      User.hasMany(models.Spot, {
+        foreignKey: 'ownerId',
+        onDelete: 'CASCADE',
+        hooks: true
+      }),
+      User.hasMany(models.Review, {
+        foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true
+      }),
+      User.hasMany(models.Booking, {
+        foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true
+      })
     }
   };
 
   User.init(
     {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: DataTypes.INTEGER
+      },
       username: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -24,12 +59,6 @@ module.exports = (sequelize, DataTypes) => {
           }
         }
       },
-    firstName: {
-      type: DataTypes.STRING,
-    },
-    lastName: {
-      type: DataTypes.STRING,
-    },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -37,6 +66,22 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           len: [3, 256],
           isEmail: true
+        }
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: [1, 30],
+          isAlpha: true,
+        }
+      },
+       lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: [1, 30],
+          isAlpha: true,
         }
       },
       hashedPassword: {
@@ -48,7 +93,12 @@ module.exports = (sequelize, DataTypes) => {
       }
     }, {
       sequelize,
-      modelName: 'User'
+      modelName: "User",
+      defaultScope: {
+        attributes: {
+          exclude: ["hashedPassword", "email", "createdAt", "updatedAt"]
+        }
+      }
     }
   );
   return User;

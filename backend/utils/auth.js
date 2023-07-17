@@ -1,10 +1,8 @@
-// backend/utils/auth.js
 const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
 const { User } = require('../db/models');
 
 const { secret, expiresIn } = jwtConfig;
-
 
 
 // Sends a JWT Cookie
@@ -72,5 +70,8 @@ const requireAuth = function (req, _res, next) {
     err.status = 401;
     return next(err);
   }
+
+
+
 
   module.exports = { setTokenCookie, restoreUser, requireAuth };
