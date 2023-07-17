@@ -156,19 +156,19 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const curBooking = await Booking.findByPk(req.params.bookingId);
 
-    //   if (!curBooking) {
-    //         res.status(404);
-    //         return res.json({
-    //               "message": "Booking couldn't be found"
-    //         });
-    //   };
-
-      if (curBooking.userId !== req.user.id) {
-            res.status(403);
+      if (!curBooking) {
+            res.status(404);
             return res.json({
-                  "message": "Not Allowed to Delete"
-                });
+                  "message": "Booking couldn't be found"
+            });
       };
+
+    //   if (curBooking.userId !== req.user.id) {
+    //         res.status(403);
+    //         return res.json({
+    //               "message": "Not Allowed to Delete"
+    //             });
+    //   };
 
       const curDate = new Date();
 
