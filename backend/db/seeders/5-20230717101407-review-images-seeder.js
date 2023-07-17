@@ -17,18 +17,6 @@ module.exports = {
     },
     {
       reviewId: 3, url: 'https://source.unsplash.com/random/?airbnb'
-    },
-    {
-      reviewId: 4, url: 'https://source.unsplash.com/random/?airbnb'
-    },
-    {
-      reviewId: 5, url: 'https://source.unsplash.com/random/?airbnb'
-    },
-    {
-      reviewId: 6, url: 'https://source.unsplash.com/random/?airbnb'
-    },
-    {
-      reviewId: 7, url: 'https://source.unsplash.com/random/?airbnb'
     }
 
    ], options)
