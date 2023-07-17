@@ -129,8 +129,7 @@ router.put("/:bookingId", requireAuth, async (req, res, next) => {
 
       const { startDate, endDate } = req.body;
 
-      //=================================
-      // Dropping leading zero from date
+
 
       const startDateArray = startDate.split('-');
 
